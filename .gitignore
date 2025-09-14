@@ -1,0 +1,7 @@
+build/
+.cache/
+
+.clangd
+
+# imgui panel layout
+**/*.ini
