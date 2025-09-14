@@ -32,3 +32,7 @@ add_custom_target(format
     COMMAND clang-format -i ${SOURCE_FILES} ${HEADER_FILES}
     COMMENT "Formatting all source and header files with clang-format"
 )
+
+if(APPLE)
+  target_link_libraries(${PROJECT_NAME} PRIVATE "-framework OpenGL")
+endif()
