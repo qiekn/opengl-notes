@@ -13,28 +13,30 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp") # source files
 file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/include/*.h") # header files
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-  ${CMAKE_SOURCE_DIR}/include
-)
-
 #---------------------------------------------------------------------3
 #                             dependences                             |
 #---------------------------------------------------------------------3
 
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/glad)
-target_link_libraries(${PROJECT_NAME} PRIVATE
-  glfw
-  glad
-)
 
-add_custom_target(format 
-    COMMAND clang-format -i ${SOURCE_FILES} ${HEADER_FILES}
-    COMMENT "Formatting all source and header files with clang-format"
-)
+set(LIBS glfw glad)
 
 if(APPLE)
-  target_link_libraries(${PROJECT_NAME} PRIVATE "-framework OpenGL")
+  list(APPEND LIBS "-framework OpenGL")
 endif()
+
+#---------------------------------------------------------------------3
+#                               targets                               |
+#---------------------------------------------------------------------3
+
+set(OPGL_PATH src/learn_opengl)
+set(CHERNO_PATH src/the_cherno)
+
+# LearnOpenGL Examples
+add_executable(opgl ${OPGL_PATH}/main.cpp)
+target_link_libraries(opgl PRIVATE ${LIBS})
+
+# The Cherno Tutorials
+add_executable(cherno ${CHERNO_PATH}/main.cpp)
+target_link_libraries(cherno PRIVATE ${LIBS})
