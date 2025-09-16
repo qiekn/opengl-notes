@@ -115,10 +115,14 @@ int main() {
   └───────────────*/
 
   float vertices[] = {
-      -0.5f, -0.5f,  // left
-      0.5f,  -0.5f,  // right
-      0.0f,  0.5f,   // top
+      -0.5f, -0.5f,  // 0
+      0.5f,  -0.5f,  // 1
+      0.5f,  0.5f,   // 2
+      -0.5f, 0.5f,   // 3
   };
+
+  unsigned int indices[]{0, 1, 2, 2, 3, 0};
+  // unsigned int indices[]{0, 1, 2};
 
   unsigned int VAO;
   glGenVertexArrays(1, &VAO);
@@ -131,6 +135,11 @@ int main() {
 
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
   glEnableVertexAttribArray(0);
+
+  unsigned int IBO;  // (Index Buffer Object, IBO)
+  glGenBuffers(1, &IBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   // Unbind
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -155,7 +164,7 @@ int main() {
 
     glUseProgram(shader);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
     // Update
     glfwSwapBuffers(window);
