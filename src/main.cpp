@@ -1,3 +1,6 @@
+#include <cstdio>
+
+#include "glad/gl.h"
 //  'glClear' is deprecated: first deprecated in macOS 10.14 - OpenGL API
 //  deprecated. (Define GL_SILENCE_DEPRECATION to silence these warnings)
 #define GL_SILENCE_DEPRECATION
@@ -24,16 +27,20 @@ int main(void) {
   /* Make the window's context current */
   glfwMakeContextCurrent(window);
 
+  int version = gladLoadGL(glfwGetProcAddress);
+  if (version == 0) {
+    printf("Failed to initialize OpenGL context\n");
+    return -1;
+  }
+
+  // Successfully loaded OpenGL
+  printf("Loaded OpenGL %d.%d\n", GLAD_VERSION_MAJOR(version),
+         GLAD_VERSION_MINOR(version));
+
   /* Loop until the user closes the window */
   while (!glfwWindowShouldClose(window)) {
     /* Render here */
     glClear(GL_COLOR_BUFFER_BIT);
-
-    glBegin(GL_TRIANGLES);
-    glVertex2f(-0.5f, -0.5f);
-    glVertex2f(0.5f, 0.5f);
-    glVertex2f(0.5f, -0.5f);
-    glEnd();
 
     /* Swap front and back buffers */
     glfwSwapBuffers(window);
