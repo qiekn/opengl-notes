@@ -24,8 +24,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 #---------------------------------------------------------------------3
 
 add_subdirectory(deps/glfw)
+add_subdirectory(deps/glad)
 target_link_libraries(${PROJECT_NAME} PRIVATE
   glfw
+  glad
 )
 
 add_custom_target(format 
