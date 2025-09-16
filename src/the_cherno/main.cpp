@@ -2,9 +2,41 @@
 #include <alloca.h>
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
-#include <iostream>
-#include <string>
 // clang-format on
+
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+
+struct ShaderProgramSource {
+  std::string VertexSource;
+  std::string FragmentSource;
+};
+
+static ShaderProgramSource ParseShader(const std::string& filepath) {
+  std::ifstream stream(filepath);
+
+  enum class ShaderType { kNone = -1, kVertex = 0, kFragment = 1 };
+
+  std::string line;
+  std::stringstream ss[2];
+  ShaderType type = ShaderType::kNone;
+  while (getline(stream, line)) {
+    if (line.find("#shader") != std::string::npos) {
+      if (line.find("vertex") != std::string::npos) {
+        // set mode to vertex
+        type = ShaderType::kVertex;
+      } else if (line.find("fragment") != std::string::npos) {
+        // set mode to fragment
+        type = ShaderType::kFragment;
+      }
+    } else {
+      ss[(int)type] << line << '\n';
+    }
+  }
+  return {ss[0].str(), ss[1].str()};
+}
 
 static unsigned int CompileShader(unsigned int type, const std::string& source) {
   unsigned id = glCreateShader(type);
@@ -108,21 +140,8 @@ int main() {
   │ Apply Shader │
   └──────────────*/
 
-  std::string vertex_shader =
-      "#version 330 core\n"
-      "layout(location = 0) in vec4 position;\n"
-      "void main() {\n"
-      "  gl_Position = vec4(position.xy, 0.0, 1.0);\n"
-      "}\n";
-
-  std::string fragment_shader =
-      "#version 330 core\n"
-      "out vec4 color;\n"
-      "void main() {\n"
-      "  color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-      "}\n";
-
-  unsigned int shader = CreateShader(vertex_shader, fragment_shader);
+  ShaderProgramSource source = ParseShader("assets/shaders/basic.shader");
+  unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
   glUseProgram(shader);
 
   /*──────────┐
