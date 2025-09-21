@@ -130,6 +130,7 @@ int main() {
     return -1;
   }
   glfwMakeContextCurrent(window);
+  glfwSwapInterval(1);
 
   /*────────────────────────────────────────┐
   │ Glad: load all opengl function pointers │
@@ -184,6 +185,13 @@ int main() {
   unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
   GLCall(glUseProgram(shader));
 
+  float color_b = 1.0f;
+  float increment = -0.05f;
+
+  int location;
+  GLCall(location = glGetUniformLocation(shader, "u_color"));
+  ASSERT(location != -1);
+
   /*──────────┐
   │ Main Loop │
   └───────────*/
@@ -195,7 +203,16 @@ int main() {
 
     GLCall(glUseProgram(shader));
     GLCall(glBindVertexArray(VAO));
+    GLCall(glUniform4f(location, 1.0, 0.5, color_b, 1.0f));
+    std::cout << "alpha: " << color_b << std::endl;
     GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+    // test uniform variable
+    if (color_b >= 1.0f)
+      increment = -0.05f;
+    else if (color_b <= 0)
+      increment = 0.05f;
+    color_b += increment;
 
     // Update
     GLCall(glfwSwapBuffers(window));
