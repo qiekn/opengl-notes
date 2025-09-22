@@ -7,6 +7,7 @@ public:
 
   void Bind() const;
   void Unbind() const;
+  unsigned int GetCount() const { return count_; }
 
 private:
   unsigned int renderer_id_;

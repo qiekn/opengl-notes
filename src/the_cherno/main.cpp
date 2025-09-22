@@ -67,6 +67,8 @@ int main() {
   vb.Unbind();
   // ib.Unbind();
 
+  Renderer renderer;
+
   /*───────┐
   │ Shader │
   └────────*/
@@ -84,8 +86,7 @@ int main() {
 
   while (!glfwWindowShouldClose(window)) {
     // Render here
-    GLCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
-    GLCall(glClear(GL_COLOR_BUFFER_BIT));
+    renderer.Clear();
 
     shader.Bind();
     shader.SetUniform4f("u_color", 1.0, 0.5, color_b, 1.0f);
@@ -93,7 +94,7 @@ int main() {
     va.Bind();
     ib.Bind();
 
-    GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+    renderer.Draw(va, ib, shader);
 
     // test uniform variable
     if (color_b >= 1.0f)
