@@ -4,6 +4,7 @@
 #include "GLFW/glfw3.h"
 // clang-format on
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -110,8 +111,6 @@ static unsigned int CreateShader(const std::string& vertex_shader,
 }
 
 int main() {
-  GLFWwindow* window;
-
   /*──────────────────────────────────────────────────────┐
   │ GLFW: Initialize and create window and opengl context │
   └───────────────────────────────────────────────────────*/
@@ -123,7 +122,7 @@ int main() {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-  window = glfwCreateWindow(800, 600, "ck::cherno_opengl_tutorial", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(800, 600, "ck::cherno_opengl_tutorial", NULL, NULL);
   if (!window) {
     printf("Glfw: Failed to create window\n");
     glfwTerminate();
@@ -154,19 +153,20 @@ int main() {
   };
 
   unsigned int indices[]{0, 1, 2, 2, 3, 0};
-  // unsigned int indices[]{0, 1, 2};
 
-  unsigned int VAO;
-  GLCall(glGenVertexArrays(1, &VAO));
-  GLCall(glBindVertexArray(VAO));
+  unsigned int VAO;                    // Save Vertex Array Object Id
+  GLCall(glGenVertexArrays(1, &VAO));  // Generate
+  GLCall(glBindVertexArray(VAO));      // Bind
+  // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure
+  // vertex attributes(s).
 
-  unsigned int buf;  // (Vertex Buffer Object, VBO)
-  GLCall(glGenBuffers(1, &buf));
-  GLCall(glBindBuffer(GL_ARRAY_BUFFER, buf));
+  unsigned int VBO;  // (Vertex Buffer Object, VBO)
+  GLCall(glGenBuffers(1, &VBO));
+  GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
   GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 
   GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0));
-  GLCall(glEnableVertexAttribArray(0));
+  glEnableVertexAttribArray(0);
 
   unsigned int IBO;  // (Index Buffer Object, IBO)
   GLCall(glGenBuffers(1, &IBO));
@@ -174,8 +174,9 @@ int main() {
   GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
 
   // Unbind
-  GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
   GLCall(glBindVertexArray(0));
+  GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+  // GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
   /*─────────────┐
   │ Apply Shader │
@@ -202,9 +203,9 @@ int main() {
     GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
     GLCall(glUseProgram(shader));
-    GLCall(glBindVertexArray(VAO));
     GLCall(glUniform4f(location, 1.0, 0.5, color_b, 1.0f));
-    std::cout << "alpha: " << color_b << std::endl;
+
+    GLCall(glBindVertexArray(VAO));
     GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
     // test uniform variable
