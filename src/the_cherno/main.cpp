@@ -1,44 +1,17 @@
 // clang-format off
-#include <alloca.h>
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
 // clang-format on
-
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
-
-#if defined(_MSC_VER)
-#define DEBUG_BREAK() __debugbreak()
-#else
-#define DEBUG_BREAK() __builtin_trap()
-#endif
-
-#define ASSERT(x)                              \
-  if (!(x)) {                                  \
-    std::cout << "Assert Failed" << std::endl; \
-    DEBUG_BREAK();                             \
-  }
-
-#define GLCall(x)                              \
-  do {                                         \
-    GLClearError();                            \
-    x;                                         \
-    ASSERT(GLLogCall(#x, __FILE__, __LINE__)); \
-  } while (0);
-
-static void GLClearError() { while (glGetError() != GL_NO_ERROR); }
-
-static bool GLLogCall(const char* function, const char* file, int line) {
-  while (GLenum error = glGetError()) {
-    std::cout << "[OpenGL Error] (" << error << "): " << function << " " << file << ":" << line
-              << std::endl;
-    return false;
-  }
-  return true;
-}
+#include "index_buffer.h"
+#include "renderer.h"
+#include "vertex_array.h"
+#include "vertex_buffer.h"
+#include "vertex_buffer_layout.h"
 
 struct ShaderProgramSource {
   std::string VertexSource;
@@ -141,11 +114,10 @@ int main() {
   }
   printf("Loaded OpenGL %d.%d\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
-  /*──────────────┐
-  │ Vertex buffer │
-  └───────────────*/
-
-  float vertices[] = {
+  /*───────┐
+  │ Vertex │
+  └────────*/
+  float position[] = {
       -0.5f, -0.5f,  // 0
       0.5f,  -0.5f,  // 1
       0.5f,  0.5f,   // 2
@@ -154,29 +126,18 @@ int main() {
 
   unsigned int indices[]{0, 1, 2, 2, 3, 0};
 
-  unsigned int VAO;                    // Save Vertex Array Object Id
-  GLCall(glGenVertexArrays(1, &VAO));  // Generate
-  GLCall(glBindVertexArray(VAO));      // Bind
-  // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure
-  // vertex attributes(s).
+  VertexArray va;
+  VertexBuffer vb(position, 4 * 2 * sizeof(float));
 
-  unsigned int VBO;  // (Vertex Buffer Object, VBO)
-  GLCall(glGenBuffers(1, &VBO));
-  GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-  GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
+  VertexBufferLayout layout;
+  layout.Push<float>(2);
+  va.AddBuffer(vb, layout);
 
-  GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0));
-  glEnableVertexAttribArray(0);
-
-  unsigned int IBO;  // (Index Buffer Object, IBO)
-  GLCall(glGenBuffers(1, &IBO));
-  GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
-  GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
+  IndexBuffer ib(indices, 6);
 
   // Unbind
-  GLCall(glBindVertexArray(0));
-  GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-  // GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+  vb.Unbind();
+  // ib.Unbind();
 
   /*─────────────┐
   │ Apply Shader │
@@ -205,7 +166,9 @@ int main() {
     GLCall(glUseProgram(shader));
     GLCall(glUniform4f(location, 1.0, 0.5, color_b, 1.0f));
 
-    GLCall(glBindVertexArray(VAO));
+    va.Bind();
+    ib.Bind();
+
     GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
     // test uniform variable
@@ -220,6 +183,7 @@ int main() {
     GLCall(glfwPollEvents());
   }
 
+  GLCall(glDeleteProgram(shader));
   glfwTerminate();
   return 0;
 }
