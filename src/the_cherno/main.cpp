@@ -2,7 +2,10 @@
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
 // clang-format on
+
 #include <cstdlib>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include "index_buffer.h"
 #include "renderer.h"
 #include "shader.h"
@@ -78,9 +81,12 @@ int main() {
   │ Shader │
   └────────*/
 
+  glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+
   Shader shader("assets/shaders/basic.shader");
   shader.Bind();
   shader.SetUniform4f("u_color", 1.0f, 0.5f, 0.2f, 1.0f);
+  shader.SetUniformMat4f("u_mvp", proj);
 
   Texture texture("assets/textures/cat.jpg");
   texture.Bind();

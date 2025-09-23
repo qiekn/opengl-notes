@@ -6,8 +6,10 @@ layout(location = 1) in vec2 textcoord;
 
 out vec2 v_textcoord;
 
+uniform mat4 u_mvp;
+
 void main() {
-    gl_Position = position;
+    gl_Position = u_mvp * position;
     v_textcoord = textcoord;
 }
 

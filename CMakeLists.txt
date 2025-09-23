@@ -22,9 +22,10 @@ file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/include/*.
 
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/glad)
+add_subdirectory(deps/glm)
 add_subdirectory(${CHERNO_PATH}/deps/stb_image)
 
-set(LIBS glfw glad stb_image)
+set(LIBS glfw glad glm stb_image)
 
 if(APPLE)
   list(APPEND LIBS "-framework OpenGL")
