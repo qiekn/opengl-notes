@@ -43,7 +43,6 @@ target_link_libraries(opgl PRIVATE ${LIBS})
 # The Cherno Tutorials
 file(GLOB_RECURSE CHERNO_SRCS CONFIGURE_DEPENDS "${CHERNO_PATH}/src/*.cpp") # source files
 add_executable(cherno
-  ${CHERNO_PATH}/main.cpp
   ${CHERNO_SRCS}
 )
 target_include_directories(cherno PRIVATE ${CHERNO_PATH}/include/)
