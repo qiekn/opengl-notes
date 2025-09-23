@@ -9,6 +9,9 @@
 #include "glm/ext/vector_float3.hpp"
 #include "glm/fwd.hpp"
 #include "glm/gtc/matrix_transform.hpp"  // IWYU pragma: keep
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 #include "index_buffer.h"
 #include "renderer.h"
 #include "shader.h"
@@ -32,8 +35,7 @@ int main() {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-  GLFWwindow* window =
-      glfwCreateWindow(kScreenWidth, kScreenHeight, "ck::cherno_opengl_tutorial", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(kScreenWidth, kScreenHeight, "ck::cherno_opengl_tutorial", NULL, NULL);
   if (!window) {
     printf("Glfw: Failed to create window\n");
     glfwTerminate();
@@ -105,6 +107,22 @@ int main() {
   float color_b = 1.0f;
   float increment = -0.05f;
 
+  /*────────────┐
+  │ ImGUi Setup │
+  └─────────────*/
+
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  ImGui::StyleColorsDark();
+
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init("#version 330");
+
+  // state
+  bool show_demo_window = false;
+  bool show_another_window = true;
+  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
   /*──────────┐
   │ Main Loop │
   └───────────*/
@@ -112,6 +130,44 @@ int main() {
   while (!glfwWindowShouldClose(window)) {
     // Render here
     renderer.Clear();
+
+    // Start Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    // 1. Show the big demo window
+    if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+
+    // 2. Show a simple window that we create ourselves.
+    {
+      static float f = 0.0f;
+      static int counter = 0;
+
+      ImGui::Begin("Hello, world!");
+
+      ImGui::Text("This is some useful text.");
+      ImGui::Checkbox("Demo Window", &show_demo_window);
+      ImGui::Checkbox("Another Window", &show_another_window);
+
+      ImGui::SliderFloat("float", &f, 0.0f, 1.0f);             // Edit 1 float using a slider from 0.0f to 1.0f
+      ImGui::ColorEdit3("clear color", (float*)&clear_color);  // Edit 3 floats representing a color
+
+      if (ImGui::Button("Button"))  // Buttons return true when clicked
+        counter++;
+      ImGui::SameLine();
+      ImGui::Text("counter = %d", counter);
+      ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+      ImGui::End();
+    }
+
+    // 3. Show another simple window.
+    if (show_another_window) {
+      ImGui::Begin("Another Window", &show_another_window);
+      ImGui::Text("Hello from another window!");
+      if (ImGui::Button("Close Me")) show_another_window = false;
+      ImGui::End();
+    }
 
     shader.Bind();
     shader.SetUniform4f("u_color", 1.0, 0.5, color_b, 1.0f);
@@ -128,10 +184,19 @@ int main() {
       increment = 0.05f;
     color_b += increment;
 
+    // Render Dear ImGui
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
     // Update
     GLCall(glfwSwapBuffers(window));
     GLCall(glfwPollEvents());
   }
+
+  // Cleanup Dear ImGui
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
 
   glfwTerminate();
   return 0;
