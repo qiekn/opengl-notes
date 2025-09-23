@@ -23,7 +23,7 @@ file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/include/*.
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/glad)
 add_subdirectory(deps/glm)
-add_subdirectory(${CHERNO_PATH}/deps/stb_image)
+add_subdirectory(deps/stb_image)
 add_subdirectory(deps/imgui)
 
 set(LIBS glfw glad glm stb_image imgui)
