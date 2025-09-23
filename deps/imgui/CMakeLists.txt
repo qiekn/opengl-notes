@@ -4,6 +4,8 @@ add_library(imgui STATIC
   imgui_tables.cpp
   imgui_widgets.cpp
   imgui.cpp
+  backends/imgui_impl_glfw.cpp
 )
 
 target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/backends)

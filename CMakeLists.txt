@@ -25,6 +25,7 @@ add_subdirectory(deps/glad)
 add_subdirectory(deps/glm)
 add_subdirectory(deps/stb_image)
 add_subdirectory(deps/imgui)
+target_link_libraries(imgui PUBLIC glfw)
 
 set(LIBS glfw glad glm stb_image imgui)
 
