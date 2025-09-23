@@ -4,6 +4,10 @@
 // clang-format on
 
 #include <cstdlib>
+#include "glm/ext/matrix_float4x4.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/fwd.hpp"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "index_buffer.h"
@@ -13,6 +17,9 @@
 #include "vertex_array.h"
 #include "vertex_buffer.h"
 #include "vertex_buffer_layout.h"
+
+constexpr int kScreenWidth = 800;
+constexpr int kScreenHeight = 600;
 
 int main() {
   /*──────────────────────────────────────────────────────┐
@@ -26,7 +33,8 @@ int main() {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-  GLFWwindow* window = glfwCreateWindow(800, 600, "ck::cherno_opengl_tutorial", NULL, NULL);
+  GLFWwindow* window =
+      glfwCreateWindow(kScreenWidth, kScreenHeight, "ck::cherno_opengl_tutorial", NULL, NULL);
   if (!window) {
     printf("Glfw: Failed to create window\n");
     glfwTerminate();
@@ -50,10 +58,10 @@ int main() {
   └────────*/
 
   float position[] = {
-      -0.5f, -0.5f, 0.0f, 0.0f,  // 0
-      0.5f,  -0.5f, 1.0f, 0.0f,  // 1
-      0.5f,  0.5f,  1.0f, 1.0f,  // 2
-      -0.5f, 0.5f,  0.0f, 1.0f   // 3
+      100.0f, 100.0f, 0.0f, 0.0f,  // 0
+      200.0f, 100.0f, 1.0f, 0.0f,  // 1
+      200.0f, 200.0f, 1.0f, 1.0f,  // 2
+      100.0f, 200.0f, 0.0f, 1.0f   // 3
   };
 
   unsigned int indices[]{0, 1, 2, 2, 3, 0};
@@ -81,12 +89,15 @@ int main() {
   │ Shader │
   └────────*/
 
-  glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+  glm::mat4 proj = glm::ortho(0.0f, (float)kScreenWidth, 0.0f, (float)kScreenHeight, -1.0f, 1.0f);
+  glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
+  glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200, 200, 0));
+  glm::mat4 mvp = proj * view * model;  // model-view-projection
 
   Shader shader("assets/shaders/basic.shader");
   shader.Bind();
   shader.SetUniform4f("u_color", 1.0f, 0.5f, 0.2f, 1.0f);
-  shader.SetUniformMat4f("u_mvp", proj);
+  shader.SetUniformMat4f("u_mvp", mvp);
 
   Texture texture("assets/textures/cat.jpg");
   texture.Bind();
