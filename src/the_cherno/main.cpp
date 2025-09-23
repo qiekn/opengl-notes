@@ -8,8 +8,7 @@
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "glm/fwd.hpp"
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/matrix_transform.hpp"  // IWYU pragma: keep
 #include "index_buffer.h"
 #include "renderer.h"
 #include "shader.h"
