@@ -5,6 +5,7 @@ add_library(imgui STATIC
   imgui_widgets.cpp
   imgui.cpp
   backends/imgui_impl_glfw.cpp
+  backends/imgui_impl_opengl3.cpp
 )
 
 target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
