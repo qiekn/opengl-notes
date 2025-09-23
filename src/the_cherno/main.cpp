@@ -6,6 +6,7 @@
 #include "index_buffer.h"
 #include "renderer.h"
 #include "shader.h"
+#include "texture.h"
 #include "vertex_array.h"
 #include "vertex_buffer.h"
 #include "vertex_buffer_layout.h"
@@ -46,18 +47,22 @@ int main() {
   └────────*/
 
   float position[] = {
-      -0.5f, -0.5f,  // 0
-      0.5f,  -0.5f,  // 1
-      0.5f,  0.5f,   // 2
-      -0.5f, 0.5f,   // 3
+      -0.5f, -0.5f, 0.0f, 0.0f,  // 0
+      0.5f,  -0.5f, 1.0f, 0.0f,  // 1
+      0.5f,  0.5f,  1.0f, 1.0f,  // 2
+      -0.5f, 0.5f,  0.0f, 1.0f   // 3
   };
 
   unsigned int indices[]{0, 1, 2, 2, 3, 0};
 
+  GLCall(glEnable(GL_BLEND));
+  GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
   VertexArray va;
-  VertexBuffer vb(position, 4 * 2 * sizeof(float));
+  VertexBuffer vb(position, 4 * 4 * sizeof(float));
 
   VertexBufferLayout layout;
+  layout.Push<float>(2);
   layout.Push<float>(2);
   va.AddBuffer(vb, layout);
 
@@ -76,6 +81,10 @@ int main() {
   Shader shader("assets/shaders/basic.shader");
   shader.Bind();
   shader.SetUniform4f("u_color", 1.0f, 0.5f, 0.2f, 1.0f);
+
+  Texture texture("assets/textures/cat.jpg");
+  texture.Bind();
+  shader.SetUniform1i("u_texture", 0);
 
   float color_b = 1.0f;
   float increment = -0.05f;

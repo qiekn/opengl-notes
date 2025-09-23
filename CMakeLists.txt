@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(OPGL_PATH src/learn_opengl)
+set(CHERNO_PATH src/the_cherno)
+
 #---------------------------------------------------------------------3
 #                               project                               |
 #---------------------------------------------------------------------3
@@ -19,8 +22,9 @@ file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/include/*.
 
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/glad)
+add_subdirectory(${CHERNO_PATH}/deps/stb_image)
 
-set(LIBS glfw glad)
+set(LIBS glfw glad stb_image)
 
 if(APPLE)
   list(APPEND LIBS "-framework OpenGL")
@@ -29,9 +33,6 @@ endif()
 #---------------------------------------------------------------------3
 #                               targets                               |
 #---------------------------------------------------------------------3
-
-set(OPGL_PATH src/learn_opengl)
-set(CHERNO_PATH src/the_cherno)
 
 # LearnOpenGL Examples
 add_executable(opgl ${OPGL_PATH}/main.cpp)
