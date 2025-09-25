@@ -19,9 +19,7 @@ void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2,
   GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 }
 
-void Shader::SetUniform1i(const std::string& name, int value) {
-  GLCall(glUniform1i(GetUniformLocation(name), value));
-}
+void Shader::SetUniform1i(const std::string& name, int value) { GLCall(glUniform1i(GetUniformLocation(name), value)); }
 
 void Shader::SetUniform1f(const std::string& name, float value) {
   GLCall(glUniform1f(GetUniformLocation(name), value));
@@ -69,8 +67,7 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
     GLCall(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
     char* message = (char*)alloca(length * sizeof(char));
     GLCall(glGetShaderInfoLog(id, length, &length, message));
-    std::cout << "Failed to compile "
-              << (type == (unsigned int)GL_VERTEX_SHADER ? "vertex" : "fragment") << std::endl;
+    std::cout << "Failed to compile " << (type == (unsigned int)GL_VERTEX_SHADER ? "vertex" : "fragment") << std::endl;
     std::cout << message << std::endl;
     GLCall(glDeleteShader(id));
     return 0;
@@ -79,8 +76,7 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
   return id;
 }
 
-unsigned int Shader::CreateShader(const std::string& vertex_shader,
-                                  const std::string& fragment_shader) {
+unsigned int Shader::CreateShader(const std::string& vertex_shader, const std::string& fragment_shader) {
   unsigned int program = glCreateProgram();
   unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertex_shader);
   unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragment_shader);
@@ -95,7 +91,7 @@ unsigned int Shader::CreateShader(const std::string& vertex_shader,
   return program;
 }
 
-int Shader::GetUniformLocation(const std::string& name) {
+int Shader::GetUniformLocation(const std::string& name) const {
   if (uniform_location_cache_.find(name) != uniform_location_cache_.end()) {
     return uniform_location_cache_[name];
   }
