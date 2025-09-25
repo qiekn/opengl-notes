@@ -10,6 +10,7 @@
 #include "imgui_impl_opengl3.h"
 #include "renderer.h"
 #include "test.h"
+#include "test_batch_render.h"
 #include "test_clear_color.h"
 #include "test_texture2d.h"
 
@@ -58,6 +59,7 @@ int main() {
 
   test_menu->RegisterTest<test::TestClearColor>("Clear Color");
   test_menu->RegisterTest<test::TestTexture2D>("2D Texture");
+  test_menu->RegisterTest<test::TestBatchRender>("Batch Render");
 
   /*────────────┐
   │ ImGUi Setup │
