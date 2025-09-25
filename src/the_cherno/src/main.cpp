@@ -11,6 +11,7 @@
 #include "renderer.h"
 #include "test.h"
 #include "test_clear_color.h"
+#include "test_texture2d.h"
 
 constexpr int kScreenWidth = 800;
 constexpr int kScreenHeight = 600;
@@ -55,7 +56,8 @@ int main() {
   test::TestMenu* test_menu = new test::TestMenu(current_test);
   current_test = test_menu;
 
-  test_menu->RegisterTest<test::TestClearColor>("ClearColor");
+  test_menu->RegisterTest<test::TestClearColor>("Clear Color");
+  test_menu->RegisterTest<test::TestTexture2D>("2D Texture");
 
   /*────────────┐
   │ ImGUi Setup │
@@ -86,7 +88,7 @@ int main() {
     if (current_test) {
       current_test->OnUpdate(0.0f);
       current_test->OnRender();
-      ImGui::Begin("ImGui-Test");
+      ImGui::Begin("Test");
       if (current_test != test_menu && ImGui::Button("<-")) {
         delete current_test;
         current_test = test_menu;

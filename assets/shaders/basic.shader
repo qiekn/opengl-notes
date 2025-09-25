@@ -25,7 +25,7 @@ uniform sampler2D u_texture;
 
 void main() {
     vec4 textcolor = texture(u_texture, v_textcoord);
-    color = textcolor * u_color;
+    color = textcolor;
 }
 
 // vim: ft=glsl

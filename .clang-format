@@ -1,7 +1,7 @@
 BasedOnStyle: Google
 ColumnLimit: 120
-IncludeBlocks: Merge
-SortIncludes: CaseInsensitive
+IncludeBlocks: Preserve
+#SortIncludes: CaseInsensitive
 
 AccessModifierOffset: -2
 
