@@ -9,6 +9,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "renderer.h"
+#include "test.h"
 #include "test_clear_color.h"
 
 constexpr int kScreenWidth = 800;
@@ -50,7 +51,11 @@ int main() {
   └───────────*/
 
   Renderer renderer;
-  test::TestClearColor test;
+  test::Test* current_test = nullptr;
+  test::TestMenu* test_menu = new test::TestMenu(current_test);
+  current_test = test_menu;
+
+  test_menu->RegisterTest<test::TestClearColor>("ClearColor");
 
   /*────────────┐
   │ ImGUi Setup │
@@ -73,15 +78,21 @@ int main() {
   while (!glfwWindowShouldClose(window)) {
     // Render here
     renderer.Clear();
-    test.OnUpdate(0.0f);
-    test.OnRender();
 
     // Start Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    {
-      test.OnImGuiRender();
+    if (current_test) {
+      current_test->OnUpdate(0.0f);
+      current_test->OnRender();
+      ImGui::Begin("ImGui-Test");
+      if (current_test != test_menu && ImGui::Button("<-")) {
+        delete current_test;
+        current_test = test_menu;
+      }
+      current_test->OnImGuiRender();
+      ImGui::End();
     }
 
     // Render Dear ImGui
@@ -91,6 +102,11 @@ int main() {
     // Update
     GLCall(glfwSwapBuffers(window));
     GLCall(glfwPollEvents());
+  }
+
+  delete current_test;
+  if (current_test != test_menu) {
+    delete test_menu;
   }
 
   // Cleanup Dear ImGui

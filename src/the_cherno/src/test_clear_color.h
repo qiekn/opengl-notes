@@ -13,7 +13,6 @@ public:
   void OnImGuiRender() override;
 
 private:
-  const char* label_;
   float clear_color_[4];
 };
 }  // namespace test

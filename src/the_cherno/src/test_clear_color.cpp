@@ -3,7 +3,7 @@
 #include "renderer.h"
 
 namespace test {
-TestClearColor::TestClearColor() : clear_color_(0.2f, 0.3f, 0.3f, 1.0f), label_("ClearColor") {}
+TestClearColor::TestClearColor() : clear_color_(0.2f, 0.3f, 0.3f, 1.0f) {}
 
 TestClearColor::~TestClearColor() {}
 
@@ -14,5 +14,5 @@ void TestClearColor::OnRender() {
   GLCall(glClear(GL_COLOR_BUFFER_BIT));
 }
 
-void TestClearColor::OnImGuiRender() { ImGui::ColorEdit4(label_, clear_color_); }
+void TestClearColor::OnImGuiRender() { ImGui::ColorEdit4("ClearColor", clear_color_); }
 }  // namespace test
