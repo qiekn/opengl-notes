@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Config
-PROJECT_NAME="main"
 BUILD_DIR="build"
+OBJECT_NAME="opgl"
 DEBUGGER="lldb"
 
 # If the build directory does not exist, run cmake first
@@ -12,11 +12,9 @@ if [ ! -d "${BUILD_DIR}" ]; then
 fi
 
 if [ "$1" = "debug" ]; then
-  ${DEBUGGER} "./${BUILD_DIR}/${PROJECT_NAME}"
-elif [ "$1" = "cherno" ]; then
-  make cherno -j"$(nproc)" -C "${BUILD_DIR}" && "./${BUILD_DIR}/cherno"
-elif [ "$1" = "opgl" ]; then
-  make opgl -j"$(nproc)" -C "${BUILD_DIR}" && "./${BUILD_DIR}/opgl"
+  ${DEBUGGER} "./${BUILD_DIR}/${OBJECT_NAME}"
+else
+  make -j"$(nproc)" -C "${BUILD_DIR}" && "./${BUILD_DIR}/${OBJECT_NAME}"
 fi
 
 # vim: ft=sh ts=2 sw=2 et
