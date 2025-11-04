@@ -5,32 +5,7 @@
 
 #include <cstdio>
 #include <string>
-
-// Shader code
-std::string vertex_source = R"(
-  #version 330 core
-
-  layout(location = 0) in vec3 aPosition;
-
-  out vec3 vPosition;
-
-  void main() {
-    vPosition = aPosition;
-    gl_Position = vec4(aPosition, 1.0);
-  }
-)";
-
-std::string fragment_source = R"(
-  #version 330 core
-
-  layout(location = 0) out vec4 color;
-
-  in vec3 vPosition;
-
-  void main() {
-    color = vec4(vPosition * 0.5 + 0.5, 1.0);
-  }
-)";
+#include "shader.hpp"
 
 int main(void) {
   // Initialize GLFW library
@@ -96,32 +71,14 @@ int main(void) {
   glBindVertexArray(0);  // Unbind VAO after configuring all the vertex attribute pointers and buffers,
                          // Unbinding the VAO prevents accidental modification by subsequent OpenGL calls.
 
-  // Compile shaders
-  // 1. Vertex shader
-  unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-  auto source = (const GLchar*)vertex_source.c_str();
-  glShaderSource(vertex_shader, 1, &source, NULL);
-  glCompileShader(vertex_shader);
-  // 2. Fragment shader
-  unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-  source = (const GLchar*)fragment_source.c_str();
-  glShaderSource(fragment_shader, 1, &source, NULL);
-  glCompileShader(fragment_shader);
-
-  // Shader Program
-  unsigned int shader_program = glCreateProgram();
-  glAttachShader(shader_program, vertex_shader);
-  glAttachShader(shader_program, fragment_shader);
-  glLinkProgram(shader_program);
-  glDeleteShader(vertex_shader);
-  glDeleteShader(fragment_shader);
+  Shader shader("assets/shaders/default.shader");
 
   // Loop until the user closes the window
   while (!glfwWindowShouldClose(window)) {
     // Render here
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(shader_program);
+    shader.Bind();
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -133,7 +90,6 @@ int main(void) {
   }
 
   // Cleanup OpenGL resources
-  glDeleteProgram(shader_program);
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
 
