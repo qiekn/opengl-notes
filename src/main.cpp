@@ -35,6 +35,12 @@ std::string fragment_source = R"(
 int main(void) {
   // Initialize GLFW library
   if (!glfwInit()) return -1;
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef __APPLE__
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
   // Create a windowed mode window and its OpenGL context
   GLFWwindow* window = glfwCreateWindow(640, 480, "ck: my first triangle", NULL, NULL);
