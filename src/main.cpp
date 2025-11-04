@@ -65,11 +65,17 @@ int main(void) {
   // clang-format off
   // Triangle vertices (after MVP transform)
   float vertices[] = {
-      -0.5f, -0.5f, 0.0f,
-       0.5f, -0.5f, 0.0f,
-       0.0f,  0.5f, 0.0f
+    0.5f, 0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f,
+    -0.5f, -0.5f, 0.0f,
+    -0.5f, 0.5f, 0.0f,
   };
   // clang-format on
+
+  unsigned int indices[] = {
+      0, 1, 3,  // the 1st triangle
+      1, 2, 3   // the 2nd triangle
+  };
 
   unsigned int VAO;  // Vertex Array Object
   glGenVertexArrays(1, &VAO);
@@ -81,6 +87,11 @@ int main(void) {
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
+
+  unsigned int IBO;  // Index Buffer Object (or Element Buffer Object, EBO)
+  glGenBuffers(1, &IBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   glBindVertexArray(0);  // Unbind VAO after configuring all the vertex attribute pointers and buffers,
                          // Unbinding the VAO prevents accidental modification by subsequent OpenGL calls.
@@ -112,7 +123,7 @@ int main(void) {
 
     glUseProgram(shader_program);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     // Swap front and back buffers
     glfwSwapBuffers(window);
