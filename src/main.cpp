@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <string>
 #include "shader.hpp"
+#include "texture.hpp"
 
 int main(void) {
   // Initialize GLFW library
@@ -40,10 +41,11 @@ int main(void) {
   // clang-format off
   // Triangle vertices (after MVP transform)
   float vertices[] = {
-    0.5f, 0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f,
-    -0.5f, 0.5f, 0.0f,
+    // positions          // colors           // texture coords
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
   };
   // clang-format on
 
@@ -60,8 +62,16 @@ int main(void) {
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+  // position attribute
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
+  // color attribute
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+  // texture coord attribute
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+  glEnableVertexAttribArray(2);
 
   unsigned int IBO;  // Index Buffer Object (or Element Buffer Object, EBO)
   glGenBuffers(1, &IBO);
@@ -69,9 +79,13 @@ int main(void) {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   glBindVertexArray(0);  // Unbind VAO after configuring all the vertex attribute pointers and buffers,
-                         // Unbinding the VAO prevents accidental modification by subsequent OpenGL calls.
+  // Unbinding the VAO prevents accidental modification by subsequent OpenGL calls.
 
   Shader shader("assets/shaders/default.shader");
+  Texture texture("assets/textures/cat.jpg");
+
+  shader.Bind();
+  shader.SetUniform1i("Texture", 0);
 
   // Loop until the user closes the window
   while (!glfwWindowShouldClose(window)) {
@@ -79,6 +93,7 @@ int main(void) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     shader.Bind();
+    texture.Bind();
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
