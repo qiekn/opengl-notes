@@ -4,9 +4,19 @@
 // clang-format on
 
 #include <cstdio>
+#include <iostream>
 #include <string>
+#include "glm/ext/matrix_float4x4.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/glm.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
+
+// ImGUI
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 int main(void) {
   // Initialize GLFW library
@@ -37,6 +47,26 @@ int main(void) {
 
   // Successfully loaded OpenGL
   printf("Loaded OpenGL %d.%d\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
+
+  // ImGui Setup
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  ImGui::StyleColorsDark();
+  ImGuiStyle& style = ImGui::GetStyle();
+  style.WindowRounding = 8.0f;
+  style.FrameRounding = 8.0f;
+  style.FontScaleDpi = 2.0f;
+
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init("#version 330");
+
+  bool show_demo_window = false;
+
+  // Transformation parameters
+  glm::vec3 translation(0.5f, -0.5f, 0.0f);
+  float rotation_angle = 0.0f;
+  bool auto_rotate = true;
+  glm::vec3 scale(1.0f, 1.0f, 1.0f);
 
   // clang-format off
   // Triangle vertices (after MVP transform)
@@ -92,10 +122,45 @@ int main(void) {
     // Render here
     glClear(GL_COLOR_BUFFER_BIT);
 
+    // ImGui Frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    // Show a simple debug window
+    {
+      if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+      ImGui::Begin("Debug");
+      ImGui::Text("Hello from ImGui");
+      ImGui::Checkbox("Show Demo Window", &show_demo_window);
+
+      ImGui::Separator();
+      ImGui::Text("Transformations");
+      ImGui::SliderFloat3("Translation", &translation.x, -1.0f, 1.0f);
+      ImGui::SliderFloat3("Scale", &scale.x, 0.1f, 3.0f);
+      ImGui::Checkbox("Auto Rotate", &auto_rotate);
+      if (!auto_rotate) {
+        ImGui::SliderAngle("Rotation", &rotation_angle, 0.0f, 360.0f);
+      }
+
+      ImGui::End();
+    }
+
     shader.Bind();
     texture.Bind();
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    // Transformations
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, translation);
+    float angle = auto_rotate ? (float)glfwGetTime() : rotation_angle;
+    trans = glm::rotate(trans, angle, glm::vec3(0.0f, 0.0f, 1.0f));
+    trans = glm::scale(trans, scale);
+    shader.SetUniformMatrix4fv("transform", trans);
+
+    // Render Dear ImGui
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     // Swap front and back buffers
     glfwSwapBuffers(window);
@@ -107,6 +172,11 @@ int main(void) {
   // Cleanup OpenGL resources
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
+
+  // Cleanup Dear ImGui
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
 
   glfwTerminate();
   return 0;
