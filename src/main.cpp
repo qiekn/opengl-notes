@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <iostream>
 #include <string>
+#include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
@@ -18,6 +19,9 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+const int kScreenWidth = 1280;
+const int kScreenHeight = 960;
+
 int main(void) {
   // Initialize GLFW library
   if (!glfwInit()) return -1;
@@ -29,7 +33,7 @@ int main(void) {
 #endif
 
   // Create a windowed mode window and its OpenGL context
-  GLFWwindow* window = glfwCreateWindow(640, 480, "ck: my first triangle", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(kScreenWidth, kScreenHeight, "ck: my first triangle", NULL, NULL);
   if (!window) {
     glfwTerminate();
     return -1;
@@ -71,18 +75,50 @@ int main(void) {
   // clang-format off
   // Triangle vertices (after MVP transform)
   float vertices[] = {
-    // positions          // colors           // texture coords
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+    // positions          // texture coords
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
   };
   // clang-format on
-
-  unsigned int indices[] = {
-      0, 1, 3,  // the 1st triangle
-      1, 2, 3   // the 2nd triangle
-  };
 
   unsigned int VAO;  // Vertex Array Object
   glGenVertexArrays(1, &VAO);
@@ -94,19 +130,11 @@ int main(void) {
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
   // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
-  // color attribute
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-  glEnableVertexAttribArray(1);
   // texture coord attribute
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-  glEnableVertexAttribArray(2);
-
-  unsigned int IBO;  // Index Buffer Object (or Element Buffer Object, EBO)
-  glGenBuffers(1, &IBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
 
   glBindVertexArray(0);  // Unbind VAO after configuring all the vertex attribute pointers and buffers,
   // Unbinding the VAO prevents accidental modification by subsequent OpenGL calls.
@@ -117,10 +145,12 @@ int main(void) {
   shader.Bind();
   shader.SetUniform1i("Texture", 0);
 
+  glEnable(GL_DEPTH_TEST);
+
   // Loop until the user closes the window
   while (!glfwWindowShouldClose(window)) {
     // Render here
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // also clear the depth buffer now!
 
     // ImGui Frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -128,10 +158,9 @@ int main(void) {
     ImGui::NewFrame();
     // Show a simple debug window
     {
-      if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+      // if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
       ImGui::Begin("Debug");
-      ImGui::Text("Hello from ImGui");
-      ImGui::Checkbox("Show Demo Window", &show_demo_window);
+      // ImGui::Checkbox("Show Demo Window", &show_demo_window);
 
       ImGui::Separator();
       ImGui::Text("Transformations");
@@ -145,18 +174,26 @@ int main(void) {
       ImGui::End();
     }
 
+    // MVP transformations
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, translation);
+    float angle = auto_rotate ? (float)glfwGetTime() : rotation_angle;
+    model = glm::rotate(model, angle, glm::vec3(0.5f, 1.0f, 0.0f));
+    model = glm::scale(model, scale);
+
+    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)kScreenWidth / (float)kScreenHeight, 0.1f, 100.0f);
+
+    shader.SetUniformMatrix4fv("model", model);
+    shader.SetUniformMatrix4fv("view", view);
+    shader.SetUniformMatrix4fv("proj", proj);
+
     shader.Bind();
     texture.Bind();
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    // Transformations
-    glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::translate(trans, translation);
-    float angle = auto_rotate ? (float)glfwGetTime() : rotation_angle;
-    trans = glm::rotate(trans, angle, glm::vec3(0.0f, 0.0f, 1.0f));
-    trans = glm::scale(trans, scale);
-    shader.SetUniformMatrix4fv("transform", trans);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // Render Dear ImGui
     ImGui::Render();
